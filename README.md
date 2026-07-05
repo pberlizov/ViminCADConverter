@@ -25,7 +25,7 @@ Current CAD feature support:
 Scope and honesty:
 
 - **Bosses and pockets** use conservative gates (primitive confidence, minimum support, profile span vs. boss radius, pocket convex-loop aspect ratio) so noisy scans throw fewer spurious modifiers; very ambiguous geometry may still under- or over-detect features.
-- **Organic / artistic surfaces**, **multi-body assemblies** (mates, per-part trees), **sheet-metal unfold/bend semantics**, and **source CAD feature history** are not recovered as first-class models. When the input mesh has **multiple disconnected components**, the pipeline keeps one body (largest by area by default, or `repair_component_index`) and emits a **warning**; extremely **thin plate** stock relative to width triggers a **sheet-metal scope** warning. NURBS or subdivision “as scanned” surfaces are not exported—output remains **build123d** primitive composition.
+- **Organic / artistic surfaces**, **multi-body assemblies** (mates, per-part trees), **sheet-metal unfold/bend semantics**, and **source CAD feature history** are not recovered as first-class models. When the input mesh has **multiple disconnected components**, the pipeline keeps one body (largest by area by default, or `repair_component_index`) and emits a **warning**; extremely **thin plate** stock relative to width triggers a **sheet-metal scope** warning. NURBS or subdivision “as scanned” surfaces are not exported-output remains **build123d** primitive composition.
 
 ## Roadmap (depth and breadth)
 
@@ -75,7 +75,7 @@ Outputs under `--output-dir` include the structured report and generated Python;
 
 ```bash
 export MESH2CAD_STATE_DIR=/var/lib/mesh2cad   # required for uploads and job storage
-mesh2cad-api   # default http://127.0.0.1:8000 — use MESH2CAD_BIND_HOST=0.0.0.0 in containers
+mesh2cad-api   # default http://127.0.0.1:8000 - use MESH2CAD_BIND_HOST=0.0.0.0 in containers
 ```
 
 - **Interactive docs:** `http://<host>:8000/docs` (OpenAPI).
@@ -115,7 +115,7 @@ When **`MESH2CAD_API_KEYS`** is set, send **`X-API-Key`** or **`Authorization: B
 ### Web UI (`mesh2cad-ui`)
 
 ```bash
-mesh2cad-ui    # default http://127.0.0.1:7860 — Gradio: path or upload, JSON + downloads
+mesh2cad-ui    # default http://127.0.0.1:7860 - Gradio: path or upload, JSON + downloads
 ```
 
 Uses **`MESH2CAD_STATE_DIR`** (or **`$TMPDIR`**) for temp uploads and job files. First-run browser UI may prompt for an admin user (see app logs for setup URLs).
@@ -156,13 +156,13 @@ The project is **deployable today** as a **single-tenant** service: one persiste
 | **`MESH2CAD_API_KEYS`** on any untrusted network | `/v1` is otherwise open. |
 | **Redis + RQ** for production-ish load | `docker-compose.queue.yml` or **`kubectl apply -k deploy/k8s`** so long runs do not block Uvicorn; see **[docs/operations.md](docs/operations.md)**. |
 | **Backups + retention** | `scripts/backup-mesh2cad-state.sh` (host) or `kubectl exec` + `tar` (see operations doc); schedule **`mesh2cad-purge-jobs`**. |
-| **Observability (optional)** | **`MESH2CAD_LOG_JSON`**, **`MESH2CAD_LOG_LEVEL`**; **`MESH2CAD_METRICS_ENABLED`** for Prometheus — **`GET /metrics`** uses the same **`MESH2CAD_API_KEYS`** rules as **`/v1`** when keys are set (open when unset; still prefer network policy). |
+| **Observability (optional)** | **`MESH2CAD_LOG_JSON`**, **`MESH2CAD_LOG_LEVEL`**; **`MESH2CAD_METRICS_ENABLED`** for Prometheus - **`GET /metrics`** uses the same **`MESH2CAD_API_KEYS`** rules as **`/v1`** when keys are set (open when unset; still prefer network policy). |
 
 **Prebuilt images:** CI can publish **`ghcr.io/<owner>/<repo>:latest`** (API + queue client) and **`:cad`** (includes **build123d** for in-container STEP export). Pull and point your compose or Kubernetes manifests at those tags.
 
 **Optional distribution:** publish the **`mesh2cad`** package to PyPI (or a private index) so users can `pip install "mesh2cad[api]"` without cloning; you still need a process manager or container for long-running **`mesh2cad-api`**.
 
-**Not required for “today” but needed for multi-tenant SaaS scale-out:** shared Postgres for metadata, object storage / pre-signed downloads for artifacts, and multiple stateless API replicas without SQLite contention — see **[docs/scale-out-roadmap.md](docs/scale-out-roadmap.md)**.
+**Not required for “today” but needed for multi-tenant SaaS scale-out:** shared Postgres for metadata, object storage / pre-signed downloads for artifacts, and multiple stateless API replicas without SQLite contention.
 
 ## Environment
 
@@ -223,12 +223,11 @@ Images: **`Dockerfile`** (API + queue), **`Dockerfile.full`** (**`[cad]`** / bui
 
 - Processing is **local** by default; this repo does not embed calls to paid third-party “AI mesh” APIs.
 - **Do not commit** real API keys, tokens, or production passwords (`.env` is gitignored). Automated tests use **dummy** credentials only; change defaults for real deployments.
-- If a secret is ever pasted into chat, a ticket, or a commit, **revoke and rotate** it immediately—assume it is compromised.
+- If a secret is ever pasted into chat, a ticket, or a commit, **revoke and rotate** it immediately-assume it is compromised.
 
 ## Benchmarks & north star
 
 - Catalog: `benchmarks/cases.json` (synthetic meshes, **`.xyz` point clouds**, small **fixture files** under `benchmarks/fixtures/`, and optional **build123d**-built meshes). Runner: `mesh2cad.benchmarks.runner`. Cases may set **`build_export`: true** to run STEP/STL export (needs optional **build123d**); optional **`expect_warning_substr`** checks merged pipeline warnings (for example validation surface strings). **`expect_route_any_of`** and **`min_feature_kind_counts_by_route`** allow routing-sensitive cases (for example capsule) without brittle single-route assertions. Optional **`repair_component_index`** selects a multi-body component before inference. The **`build123d_two_hole_plate`** generator materializes a preview STL via **build123d** (skipped in `pytest` when build123d is not installed); CI runs those cases in the **test-with-build123d** workflow job.
-- Product intent and acceptance focus: `docs/NORTH_STAR.md`.
 
 ## Development
 
